@@ -1,0 +1,49 @@
+-- Services & variables
+local Players      = game:GetService("Players")
+local UserInput    = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local Lighting     = game:GetService("Lighting")
+
+local player = Players.LocalPlayer
+local random = Random.new()
+
+-- Helper to generate a random color
+local function randomColor()
+    return Color3.new(random:NextNumber(), random:NextNumber(), random:NextNumber())
+end
+
+-- Build and play a randomized lighting tween
+local function playRandomLightingTween()
+    -- Randomize duration, easing style/direction
+    local duration = random:NextNumber(1, 3)
+    local easingStyles = Enum.EasingStyle:GetEnumItems()
+    local easingDirs   = Enum.EasingDirection:GetEnumItems()
+
+    local tweenInfo = TweenInfo.new(
+        duration,
+        easingStyles[random:NextInteger(1, #easingStyles)],
+        easingDirs[random:NextInteger(1, #easingDirs)],
+        0,        -- no repeat
+        false,    -- no rewind
+        0         -- no delay
+    )
+
+    local goals = {
+        ClockTime = random:NextNumber(0, 24),
+        Brightness = random:NextNumber(0.5, 2),
+        Ambient = randomColor(),
+        OutdoorAmbient = randomColor()
+    }
+
+    -- Create and play tween
+    local tween = TweenService:Create(Lighting, tweenInfo, goals)
+    tween:Play()
+end
+
+-- Input handler
+UserInput.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.E then
+        playRandomLightingTween()
+    end
+end)
